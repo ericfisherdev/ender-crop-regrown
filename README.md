@@ -4,22 +4,6 @@
 <img src="icons/logo-wide@10x.png" />
 </center>
 
-<a href="https://modrinth.com/mod/ender-crop">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/modrinth/dt/ender-crop?logo=modrinth&label=modrinth&labelColor=ffffff&color=00af5c">
-        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/modrinth/dt/ender-crop?logo=modrinth&label=modrinth&labelColor=000000&color=00af5c">
-        <img alt="Shows a black logo in light color mode and a white one in dark color mode." src="https://img.shields.io/modrinth/dt/ender-crop?logo=modrinth&label=modrinth&labelColor=000000&color=00af5c">
-    </picture>
-</a>
-
-<a href="https://www.curseforge.com/minecraft/mc-mods/ender-crop">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/curseforge/dt/242269?logo=curseforge&label=curseforge&labelColor=ffffff&color=ff784d">
-        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/curseforge/dt/242269?logo=curseforge&label=curseforge&labelColor=000000&color=ff784d">
-        <img alt="Shows a black logo in light color mode and a white one in dark color mode." src="https://img.shields.io/curseforge/dt/242269?logo=curseforge&label=curseforge&labelColor=000000&color=ff784d">
-    </picture>
-</a>
-
 ## The Crop
 
 <center>
@@ -67,9 +51,3 @@ To obtain tilled end stone you simply right-click regular end stone with a hoe t
 </tr>
 </table>
 </center>
-
-*Why I made the mod:*
-> I came upon the idea while playing the RyRyPatPatPackPack (R2P4) for MC 1.8.9 which, at the time, didn’t have
-> ExtraUtils2. Needing to go to the End I first tried hunting endermen, but there were few and the Progressive Mobs
-mod didn't make it easy to survive at night. So out of frustration (mostly because I'm really good at getting killed)
-> I made the Ender Crop mod.
