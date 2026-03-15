@@ -26,5 +26,5 @@ jobs:
         with:
           name: jars
           path: |
-            fabric/build/libs/endercrop-*-fabric.jar
-            neoforge/build/libs/endercrop-*-neoforge.jar
+            fabric/build/libs/endercrop-regrown-*-fabric.jar
+            neoforge/build/libs/endercrop-regrown-*-neoforge.jar
