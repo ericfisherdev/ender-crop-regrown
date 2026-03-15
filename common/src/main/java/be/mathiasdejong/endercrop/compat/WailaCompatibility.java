@@ -2,10 +2,8 @@ package be.mathiasdejong.endercrop.compat;
 
 import static net.minecraft.ChatFormatting.*;
 
-import be.mathiasdejong.endercrop.HoeHelper;
 import be.mathiasdejong.endercrop.Reference;
 import be.mathiasdejong.endercrop.block.EnderCropBlock;
-import be.mathiasdejong.endercrop.config.EnderCropConfiguration;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -38,18 +36,16 @@ public class WailaCompatibility implements IWailaPlugin {
     @Override
     public void appendTooltip(
         ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
-      final EnderCropBlock enderCrop = (EnderCropBlock) blockAccessor.getBlock();
-
-      if (!enderCrop.isMaxAge(blockAccessor.getBlockState())) {
-        if (!EnderCropBlock.hasSufficientLight(
-            blockAccessor.getLevel(), blockAccessor.getPosition())) {
-          tooltip.add(NO_GROWTH);
-          if (blockAccessor.getPlayer().isCrouching()) {
-            final int lightLevel =
-                blockAccessor.getLevel().getRawBrightness(blockAccessor.getPosition(), 0);
-            tooltip.add(
-                LIGHT_LEVEL.copy().append(Component.literal(lightLevel + " (>7)").withStyle(RED)));
-          }
+      final CompatHudInfo info =
+          CompatHudInfo.forCrop(
+              blockAccessor.getBlockState(), blockAccessor.getLevel(), blockAccessor.getPosition());
+      if (info.isCropNotGrowing) {
+        tooltip.add(NO_GROWTH);
+        if (blockAccessor.getPlayer().isCrouching()) {
+          tooltip.add(
+              LIGHT_LEVEL
+                  .copy()
+                  .append(Component.literal(info.cropLightLevel + " (>7)").withStyle(RED)));
         }
       }
     }
@@ -84,30 +80,25 @@ public class WailaCompatibility implements IWailaPlugin {
     @Override
     public void appendTooltip(
         ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
+      if (!blockAccessor.getBlock().equals(Blocks.END_STONE)) return;
+      final CompatHudInfo info = CompatHudInfo.forEndstone(blockAccessor.getPlayer());
+      if (!info.isHoldingHoe) return;
       final IElementHelper elements = IElementHelper.get();
-
-      if (blockAccessor.getBlock().equals(Blocks.END_STONE)
-          && EnderCropConfiguration.tilledEndStone.get()) {
-        final ItemStack hoeStack = HoeHelper.holdingHoeTool(blockAccessor.getPlayer());
-        if (!hoeStack.isEmpty()) {
-          final boolean canTill = HoeHelper.canTillEndstone(hoeStack, blockAccessor.getPlayer());
-          tooltip.add(
-              elements
-                  .item(
-                      EnderCropConfiguration.endstoneNeedsUnbreaking.get() ? ENCHANTED_HOE : HOE,
-                      0.75F)
-                  .size(new Vec2(10, 13))
-                  .translate(new Vec2(-2, -2)));
-          tooltip.append(elements.text(canTill ? CHECK : X).translate(new Vec2(-3.5f, 6)));
-          tooltip.append(elements.spacer(4, 0));
-          tooltip.append(
-              elements.text(TILL.copy().append(unbreakingHint(canTill))).translate(new Vec2(0, 2)));
-        }
-      }
+      tooltip.add(
+          elements
+              .item(info.needsUnbreaking ? ENCHANTED_HOE : HOE, 0.75F)
+              .size(new Vec2(10, 13))
+              .translate(new Vec2(-2, -2)));
+      tooltip.append(elements.text(info.canTill ? CHECK : X).translate(new Vec2(-3.5f, 6)));
+      tooltip.append(elements.spacer(4, 0));
+      tooltip.append(
+          elements
+              .text(TILL.copy().append(unbreakingHint(info.canTill, info.needsUnbreaking)))
+              .translate(new Vec2(0, 2)));
     }
 
-    private Component unbreakingHint(boolean canTill) {
-      if (EnderCropConfiguration.endstoneNeedsUnbreaking.get() && !canTill) return UNBREAKING_HINT;
+    private Component unbreakingHint(boolean canTill, boolean needsUnbreaking) {
+      if (needsUnbreaking && !canTill) return UNBREAKING_HINT;
       else return Component.empty();
     }
 
