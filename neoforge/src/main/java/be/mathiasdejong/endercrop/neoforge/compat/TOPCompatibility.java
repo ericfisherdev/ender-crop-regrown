@@ -1,17 +1,13 @@
 package be.mathiasdejong.endercrop.neoforge.compat;
 
-import be.mathiasdejong.endercrop.HoeHelper;
 import be.mathiasdejong.endercrop.Reference;
-import be.mathiasdejong.endercrop.block.EnderCropBlock;
-import be.mathiasdejong.endercrop.block.TilledEndstoneBlock;
-import be.mathiasdejong.endercrop.config.EnderCropConfiguration;
+import be.mathiasdejong.endercrop.compat.CompatHudInfo;
 import be.mathiasdejong.endercrop.init.ModBlocks;
 import com.google.common.base.Function;
 import javax.annotation.Nullable;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,43 +39,36 @@ public final class TOPCompatibility implements Function<ITheOneProbe, Void> {
               BlockState blockState,
               IProbeHitData data) {
             if (blockState.is(ModBlocks.TILLED_END_STONE.get())) {
+              final CompatHudInfo info = CompatHudInfo.forTilledEndstone(blockState);
               if (mode == ProbeMode.EXTENDED) {
-                if (blockState.getValue(TilledEndstoneBlock.MOISTURE) == 7) {
+                if (info.isMoist) {
                   probeInfo.text(CompoundText.create().label("{*endercrop.wailatop.moist*}"));
                 } else {
                   probeInfo.text(CompoundText.create().label("{*endercrop.wailatop.dry*}"));
                 }
               }
               if (mode == ProbeMode.DEBUG) {
-                probeInfo.text(
-                    CompoundText.create()
-                        .labelInfo(
-                            "MOISTURE: ", blockState.getValue(TilledEndstoneBlock.MOISTURE)));
+                probeInfo.text(CompoundText.create().labelInfo("MOISTURE: ", info.moistureValue));
               }
             } else if (blockState.is(ModBlocks.ENDER_CROP.get())) {
-              final EnderCropBlock enderCrop = (EnderCropBlock) blockState.getBlock();
-
-              if (!enderCrop.isMaxAge(blockState)) {
-                if (!EnderCropBlock.hasSufficientLight(world, data.getPos())) {
-                  probeInfo.text(CompoundText.create().error("{*endercrop.wailatop.nogrowth*}"));
-                  if (mode == ProbeMode.EXTENDED) {
-                    final int lightLevel = world.getRawBrightness(data.getPos(), 0);
-                    probeInfo.text(
-                        CompoundText.create()
-                            .label("{*endercrop.wailatop.light*}: ")
-                            .info(String.valueOf(lightLevel))
-                            .error(" (>7)"));
-                  }
+              final CompatHudInfo info = CompatHudInfo.forCrop(blockState, world, data.getPos());
+              if (info.isCropNotGrowing) {
+                probeInfo.text(CompoundText.create().error("{*endercrop.wailatop.nogrowth*}"));
+                if (mode == ProbeMode.EXTENDED) {
+                  probeInfo.text(
+                      CompoundText.create()
+                          .label("{*endercrop.wailatop.light*}: ")
+                          .info(String.valueOf(info.cropLightLevel))
+                          .error(" (>7)"));
                 }
               }
-            } else if (blockState.is(Blocks.END_STONE)
-                && EnderCropConfiguration.tilledEndStone.get()) {
-              final ItemStack hoeStack = HoeHelper.holdingHoeTool(player);
-              if (!hoeStack.isEmpty()) {
+            } else if (blockState.is(Blocks.END_STONE)) {
+              final CompatHudInfo info = CompatHudInfo.forEndstone(player);
+              if (info.isHoldingHoe) {
                 final IProbeInfo hori =
                     probeInfo.horizontal(
                         probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
-                if (HoeHelper.canTillEndstone(hoeStack, player)) {
+                if (info.canTill) {
                   hori.icon(
                       ResourceLocation.fromNamespaceAndPath(
                           "theoneprobe", "textures/gui/icons.png"),
@@ -112,7 +101,7 @@ public final class TOPCompatibility implements Function<ITheOneProbe, Void> {
                       CompoundText.create()
                           .warning(
                               "{*endercrop.top.hoe*}"
-                                  + (EnderCropConfiguration.endstoneNeedsUnbreaking.get()
+                                  + (info.needsUnbreaking
                                       ? " ({*enchantment.minecraft.unbreaking*} I+)"
                                       : "")));
                 }
