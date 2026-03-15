@@ -67,6 +67,10 @@ public class EnderCropBlock extends CropBlock {
     return worldIn.getBlockState(pos.below()).is(ModBlocks.TILLED_END_STONE.get());
   }
 
+  private static boolean isOnEndstone(BlockState soilState) {
+    return soilState.is(ModBlocks.TILLED_END_STONE.get());
+  }
+
   @Override
   public boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
     return state.is(Blocks.FARMLAND) || state.is(ModBlocks.TILLED_END_STONE.get());
@@ -75,10 +79,11 @@ public class EnderCropBlock extends CropBlock {
   @Override
   public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
     if (!level.isLoaded(pos)) return; // Neoforge
-    if (hasSufficientLight(level, pos)) {
+    final BlockState soilState = level.getBlockState(pos.below());
+    if (hasSufficientLight(soilState, level, pos)) {
       final int age = this.getAge(state);
       if (!this.isMaxAge(state)) {
-        final float growthChance = getGrowthSpeed(this, level, pos);
+        final float growthChance = getGrowthSpeed(this, soilState, level, pos);
         final boolean doGrow =
             growthChance > 0 && random.nextInt((int) (25.0F / growthChance) + 1) == 0;
         if (ModExpectPlatform.onCropsGrowPre(level, pos, state, doGrow)) { // Neoforge
@@ -89,23 +94,33 @@ public class EnderCropBlock extends CropBlock {
     }
   }
 
+  public static boolean hasSufficientLight(
+      BlockState soilState, LevelReader worldIn, BlockPos pos) {
+    return isOnEndstone(soilState) || worldIn.getRawBrightness(pos, 0) <= 7;
+  }
+
   public static boolean hasSufficientLight(LevelReader worldIn, BlockPos pos) {
-    return isOnEndstone(worldIn, pos) || worldIn.getRawBrightness(pos, 0) <= 7;
+    return hasSufficientLight(worldIn.getBlockState(pos.below()), worldIn, pos);
   }
 
   // Reimplementing the whole thing because it's static, and we don't want to penalize tilled end
   // stone
   @SuppressWarnings("UnreachableCode")
-  protected static float getGrowthSpeed(Block block, Level level, BlockPos pos) {
+  protected static float getGrowthSpeed(
+      Block block, BlockState centerSoilState, Level level, BlockPos pos) {
     float f = 1.0F;
-    BlockPos soilPos = pos.below();
+    BlockPos soilOrigin = pos.below();
+    BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
     for (int i = -1; i <= 1; ++i) {
       for (int j = -1; j <= 1; ++j) {
         float g = 0.0F;
-        BlockState soilState = level.getBlockState(soilPos.offset(i, 0, j));
+        BlockState soilState =
+            (i == 0 && j == 0)
+                ? centerSoilState
+                : level.getBlockState(mutable.setWithOffset(soilOrigin, i, 0, j));
         if (ModExpectPlatform.canSustainPlant(
-            soilState, level, soilPos, Direction.UP, (EnderCropBlock) block)) {
+            soilState, level, soilOrigin, Direction.UP, (EnderCropBlock) block)) {
           g = 1.0F;
           if (soilState.getValue(FarmBlock.MOISTURE) > 0) {
             g = 3.0F;
@@ -120,28 +135,26 @@ public class EnderCropBlock extends CropBlock {
       }
     }
 
-    BlockPos blockPos2 = pos.north();
-    BlockPos blockPos3 = pos.south();
-    BlockPos blockPos4 = pos.west();
-    BlockPos blockPos5 = pos.east();
-    boolean bl =
-        level.getBlockState(blockPos4).is(block) || level.getBlockState(blockPos5).is(block);
-    boolean bl2 =
-        level.getBlockState(blockPos2).is(block) || level.getBlockState(blockPos3).is(block);
+    BlockPos west = pos.west();
+    BlockPos east = pos.east();
+    BlockPos north = pos.north();
+    BlockPos south = pos.south();
+    boolean bl = level.getBlockState(west).is(block) || level.getBlockState(east).is(block);
+    boolean bl2 = level.getBlockState(north).is(block) || level.getBlockState(south).is(block);
     if (bl && bl2) {
       f /= 2.0F;
     } else {
       boolean bl3 =
-          level.getBlockState(blockPos4.north()).is(block)
-              || level.getBlockState(blockPos5.north()).is(block)
-              || level.getBlockState(blockPos5.south()).is(block)
-              || level.getBlockState(blockPos4.south()).is(block);
+          level.getBlockState(west.north()).is(block)
+              || level.getBlockState(east.north()).is(block)
+              || level.getBlockState(east.south()).is(block)
+              || level.getBlockState(west.south()).is(block);
       if (bl3) {
         f /= 2.0F;
       }
     }
 
-    if (isOnEndstone(level, pos)) f *= EnderCropConfiguration.tilledEndMultiplier.get();
+    if (isOnEndstone(centerSoilState)) f *= EnderCropConfiguration.tilledEndMultiplier.get();
     else f *= EnderCropConfiguration.tilledSoilMultiplier.get();
 
     return f;
@@ -155,10 +168,10 @@ public class EnderCropBlock extends CropBlock {
   @Override
   public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
     final BlockPos below = pos.below();
+    final BlockState soilState = level.getBlockState(below);
     //noinspection ConstantValue
-    return hasSufficientLight(level, pos)
-        && ModExpectPlatform.canSustainPlant(
-            level.getBlockState(below), level, below, Direction.UP, this);
+    return hasSufficientLight(soilState, level, pos)
+        && ModExpectPlatform.canSustainPlant(soilState, level, below, Direction.UP, this);
   }
 
   @Override
