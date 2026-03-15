@@ -21,7 +21,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 public class ConfigScreen {
 
     private static final ResourceLocation BACKGROUND =
-        new ResourceLocation(Reference.MOD_ID, "textures/block/tilled_end_stone_dry.png");
+        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/tilled_end_stone_dry.png");
 
     public static Screen getConfigScreen(Screen parent) {
         final ConfigBuilder builder = ConfigBuilder.create()

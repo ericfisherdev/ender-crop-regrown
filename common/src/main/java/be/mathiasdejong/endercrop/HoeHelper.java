@@ -7,11 +7,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 
 import org.jetbrains.annotations.NotNull;
-
-import static net.minecraft.world.item.enchantment.Enchantments.UNBREAKING;
 
 public final class HoeHelper {
 
@@ -19,8 +19,10 @@ public final class HoeHelper {
         final Item item = itemStack.getItem();
 
         if (player != null && player.isCreative()) return true;
-        else if (item instanceof HoeItem)
-            return EnchantmentHelper.getItemEnchantmentLevel(UNBREAKING, itemStack) > 0
+        else if (item instanceof HoeItem && player != null)
+            return EnchantmentHelper.getItemEnchantmentLevel(
+                    player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.UNBREAKING),
+                    itemStack) > 0
                 || !EnderCropConfiguration.endstoneNeedsUnbreaking.get();
         else return false;
     }

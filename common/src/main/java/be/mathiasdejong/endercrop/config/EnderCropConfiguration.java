@@ -4,7 +4,7 @@ import be.mathiasdejong.endercrop.EnderCrop;
 
 import net.minecraft.network.chat.Component;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
+import net.neoforged.fml.config.IConfigSpec.ILoadedConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +55,7 @@ public final class EnderCropConfiguration {
             "Require a hoe to be enchanted with Unbreaking (I) to till End stone.");
     }
 
-    public static void onLoad(String configFile, CommentedConfig configData) {
+    public static void onLoad(String configFile, ILoadedConfig configData) {
         EnderCrop.LOGGER.info("Reloading {} from disk", configFile);
         COMMON_CONFIG.acceptConfig(configData);
     }

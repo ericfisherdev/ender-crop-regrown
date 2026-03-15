@@ -5,11 +5,11 @@ import be.mathiasdejong.endercrop.Reference;
 import be.mathiasdejong.endercrop.block.EnderCropBlock;
 import be.mathiasdejong.endercrop.config.EnderCropConfiguration;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec2;
@@ -55,7 +55,7 @@ public class WailaCompatibility implements IWailaPlugin {
 
         @Override
         public ResourceLocation getUid() {
-            return new ResourceLocation(Reference.MOD_ID, Reference.Blocks.ENDER_CROP);
+            return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, Reference.Blocks.ENDER_CROP);
         }
     }
 
@@ -77,7 +77,7 @@ public class WailaCompatibility implements IWailaPlugin {
         private static final ItemStack ENCHANTED_HOE = HOE.copy();
 
         static {
-            ENCHANTED_HOE.enchant(Enchantments.UNBREAKING, 1);
+            ENCHANTED_HOE.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         }
 
         @Override
@@ -105,7 +105,7 @@ public class WailaCompatibility implements IWailaPlugin {
 
         @Override
         public ResourceLocation getUid() {
-            return new ResourceLocation(Reference.MOD_ID, Reference.Blocks.TILLED_END_STONE);
+            return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, Reference.Blocks.TILLED_END_STONE);
         }
     }
 }
