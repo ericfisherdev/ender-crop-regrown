@@ -28,3 +28,18 @@ jobs:
             echo "::error file=gradle.properties::Project version does not match released tag"
             exit 1
           fi
+  upload-artifacts:
+    needs: [call-build, verify-version]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download built jars
+        uses: actions/download-artifact@v4
+        with:
+          name: jars
+          path: jars
+      - name: Upload jars to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ github.event.release.tag_name }} jars/*.jar --repo ${{ github.repository }}
