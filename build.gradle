@@ -1,6 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+    id "com.diffplug.spotless" version "7.0.2"
 }
 
 apply plugin: 'maven-publish'
@@ -22,6 +23,15 @@ subprojects {
             officialMojangMappings()
             parchment("org.parchmentmc.data:parchment-1.21.1:${rootProject.mapping_version}@zip")
         }
+    }
+}
+
+spotless {
+    java {
+        target "common/src/**/*.java", "fabric/src/**/*.java", "neoforge/src/**/*.java"
+        googleJavaFormat()
+        removeUnusedImports()
+        formatAnnotations()
     }
 }
 
