@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.InterModComms;
 
 public final class TOPCompatibility implements Function<ITheOneProbe, Void> {
-  public static ITheOneProbe probe;
+  private static ITheOneProbe probe;
 
   public static void register() {
     InterModComms.sendTo("theoneprobe", "GetTheOneProbe", TOPCompatibility::new);
