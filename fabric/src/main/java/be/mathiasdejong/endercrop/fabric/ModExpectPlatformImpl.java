@@ -33,8 +33,8 @@ public class ModExpectPlatformImpl extends ModExpectPlatform {
 
     public static void initConfig() {
         NeoForgeConfigRegistry.INSTANCE.register(Reference.MOD_ID, ModConfig.Type.COMMON, EnderCropConfiguration.COMMON_CONFIG, Reference.CONFIG_FILE);
-        NeoForgeModConfigEvents.loading(MOD_ID).register(listener -> EnderCropConfiguration.onLoad(listener.getFileName(), listener.getConfigData()));
-        NeoForgeModConfigEvents.reloading(MOD_ID).register(listener -> EnderCropConfiguration.onLoad(listener.getFileName(), listener.getConfigData()));
+        NeoForgeModConfigEvents.loading(MOD_ID).register(listener -> EnderCropConfiguration.onLoad(listener.getFileName(), listener.getLoadedConfig()));
+        NeoForgeModConfigEvents.reloading(MOD_ID).register(listener -> EnderCropConfiguration.onLoad(listener.getFileName(), listener.getLoadedConfig()));
     }
 
     /* Neoforge-specific hooks */

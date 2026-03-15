@@ -34,7 +34,7 @@ public final class TOPCompatibility implements Function<ITheOneProbe, Void> {
         probe.registerProvider(new IProbeInfoProvider() {
             @Override
             public ResourceLocation getID() {
-                return new ResourceLocation(Reference.MOD_ID);
+                return ResourceLocation.withDefaultNamespace(Reference.MOD_ID);
             }
 
             @Override
@@ -67,10 +67,10 @@ public final class TOPCompatibility implements Function<ITheOneProbe, Void> {
                     if (!hoeStack.isEmpty()) {
                         final IProbeInfo hori = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
                         if (HoeHelper.canTillEndstone(hoeStack, player)) {
-                            hori.icon(new ResourceLocation("theoneprobe", "textures/gui/icons.png"), 0, 16, 13, 13, probeInfo.defaultIconStyle().width(18).height(14).textureWidth(32).textureHeight(32));
+                            hori.icon(ResourceLocation.fromNamespaceAndPath("theoneprobe", "textures/gui/icons.png"), 0, 16, 13, 13, probeInfo.defaultIconStyle().width(18).height(14).textureWidth(32).textureHeight(32));
                             hori.text(CompoundText.create().ok("{*endercrop.top.hoe*}"));
                         } else {
-                            hori.icon(new ResourceLocation("theoneprobe", "textures/gui/icons.png"), 16, 16, 13, 13, probeInfo.defaultIconStyle().width(18).height(14).textureWidth(32).textureHeight(32));
+                            hori.icon(ResourceLocation.fromNamespaceAndPath("theoneprobe", "textures/gui/icons.png"), 16, 16, 13, 13, probeInfo.defaultIconStyle().width(18).height(14).textureWidth(32).textureHeight(32));
                             hori.text(CompoundText.create().warning("{*endercrop.top.hoe*}" + (EnderCropConfiguration.endstoneNeedsUnbreaking.get() ? " ({*enchantment.minecraft.unbreaking*} I+)" : "")));
                         }
                     }

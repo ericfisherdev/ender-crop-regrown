@@ -18,11 +18,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import dev.architectury.platform.hooks.EventBusesHooks;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.common.IPlantable;
+import net.neoforged.neoforge.common.util.TriState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
@@ -31,6 +31,12 @@ import static be.mathiasdejong.endercrop.Reference.MOD_ID;
 
 @ParametersAreNonnullByDefault
 public class ModExpectPlatformImpl extends ModExpectPlatform {
+
+    private static ModContainer modContainer;
+
+    public static void setModContainer(ModContainer container) {
+        modContainer = container;
+    }
     public static Block getTillendEndstoneBlock() {
         return new TilledEndstoneBlock() {
             @Override
@@ -39,21 +45,20 @@ public class ModExpectPlatformImpl extends ModExpectPlatform {
             }
 
             @Override
-            public boolean canSustainPlant(
-                BlockState state, BlockGetter world, BlockPos pos, Direction facing, IPlantable plantable) {
-                final BlockState plant = plantable.getPlant(world, pos.offset(facing.getNormal()));
-                return plant.getBlock() == ModBlocks.ENDER_CROP.get();
+            public TriState canSustainPlant(
+                BlockState state, BlockGetter world, BlockPos pos, Direction facing, BlockState plantState) {
+                return plantState.getBlock() == ModBlocks.ENDER_CROP.get() ? TriState.TRUE : TriState.DEFAULT;
             }
         };
     }
 
     public static void initConfig() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, EnderCropConfiguration.COMMON_CONFIG, Reference.CONFIG_FILE);
+        modContainer.registerConfig(ModConfig.Type.COMMON, EnderCropConfiguration.COMMON_CONFIG, Reference.CONFIG_FILE);
         EventBusesHooks.whenAvailable(MOD_ID, bus -> {
             final Consumer<ModConfigEvent> onLoad = (event) ->
                 EnderCropConfiguration.onLoad(
                     event.getConfig().getFileName(),
-                    event.getConfig().getConfigData()
+                    event.getConfig().getLoadedConfig()
                 );
             bus.addListener((ModConfigEvent.Loading event) -> onLoad.accept(event));
             bus.addListener((ModConfigEvent.Reloading event) -> onLoad.accept(event));
@@ -63,16 +68,16 @@ public class ModExpectPlatformImpl extends ModExpectPlatform {
     /* Neoforge-specific hooks */
 
     public static boolean onCropsGrowPre(ServerLevel level, BlockPos pos, BlockState state, boolean doGrow) {
-        return CommonHooks.onCropsGrowPre(level, pos, state, doGrow);
+        return CommonHooks.canCropGrow(level, pos, state, doGrow);
     }
 
     public static void onCropsGrowPost(ServerLevel level, BlockPos pos, BlockState state) {
-        CommonHooks.onCropsGrowPost(level, pos, state);
+        CommonHooks.fireCropGrowPost(level, pos, state);
     }
 
     public static boolean canSustainPlant(
         BlockState blockState, LevelReader level, BlockPos pos, Direction facing, EnderCropBlock crop) {
-        return blockState.getBlock().canSustainPlant(blockState, level, pos, facing, crop);
+        return blockState.getBlock().canSustainPlant(blockState, level, pos, facing, crop.defaultBlockState()).isTrue();
     }
 
     public static boolean onFarmlandTrample(Level level, BlockPos pos, BlockState blockState, float fallDistance, Entity entity) {
