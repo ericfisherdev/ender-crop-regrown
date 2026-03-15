@@ -14,11 +14,11 @@ jobs:
         run: |
           mod_version="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)"
           echo "::group::Versions"
-          echo "Mod version = v${mod_version}"
+          echo "Mod version = ${mod_version}"
           echo "Release tag = ${{ github.event.release.tag_name }}"
           echo "::endgroup::"
-          if [ "v${mod_version}" != "${{ github.event.release.tag_name }}" ]; then
-            echo "::error file=gradle.properties::mod_version does not match release tag (expected v${mod_version}, got ${{ github.event.release.tag_name }})"
+          if [ "${mod_version}" != "${{ github.event.release.tag_name }}" ]; then
+            echo "::error file=gradle.properties::mod_version does not match release tag (expected ${mod_version}, got ${{ github.event.release.tag_name }})"
             exit 1
           fi
   upload-artifacts:
