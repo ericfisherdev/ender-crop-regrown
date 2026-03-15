@@ -5,8 +5,8 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 
 public class ConfigScreen implements ModMenuApi {
 
-    @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return be.mathiasdejong.endercrop.config.ConfigScreen::getConfigScreen;
-    }
+  @Override
+  public ConfigScreenFactory<?> getModConfigScreenFactory() {
+    return be.mathiasdejong.endercrop.config.ConfigScreen::getConfigScreen;
+  }
 }
