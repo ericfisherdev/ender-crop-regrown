@@ -170,16 +170,4 @@ public class EnderCropBlock extends CropBlock {
   public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
     return false;
   }
-
-  @Override
-  public boolean isBonemealSuccess(
-      Level level, RandomSource random, BlockPos pos, BlockState state) {
-    return false;
-  }
-
-  @Override
-  public void performBonemeal(
-      ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
-    // NOOP
-  }
 }

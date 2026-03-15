@@ -50,8 +50,8 @@ public class TilledEndstoneBlock extends FarmBlock {
       } else if (!shouldMaintainFarmland(level, pos)) {
         turnToEndStone(state, level, pos);
       }
-    } else if (moisture < 7) {
-      level.setBlock(pos, state.setValue(MOISTURE, 7), 2);
+    } else if (moisture < MAX_MOISTURE) {
+      level.setBlock(pos, state.setValue(MOISTURE, MAX_MOISTURE), 2);
     }
   }
 

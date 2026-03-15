@@ -3,7 +3,6 @@ package be.mathiasdejong.endercrop.init;
 import be.mathiasdejong.endercrop.HoeHelper;
 import be.mathiasdejong.endercrop.config.EnderCropConfiguration;
 import dev.architectury.hooks.item.tool.HoeItemHooks;
-import java.util.Objects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -24,9 +23,8 @@ public final class ModHooks {
             final boolean canTill =
                 HoeItem.onlyIfAirAbove(ctx)
                     && HoeHelper.canTillEndstone(ctx.getItemInHand(), ctx.getPlayer());
-            if (!canTill)
-              Objects.requireNonNull(ctx.getPlayer())
-                  .displayClientMessage(UNTILLABLE_MESSAGE, true);
+            if (!canTill && ctx.getPlayer() != null)
+              ctx.getPlayer().displayClientMessage(UNTILLABLE_MESSAGE, true);
             return canTill;
           } else return false;
         },
