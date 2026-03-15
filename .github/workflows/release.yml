@@ -10,22 +10,15 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 21
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-      - name: Compare Gradle project version and release tag
+      - name: Compare mod version and release tag
         run: |
-          project_version="$(./gradlew -q --no-daemon common:properties --property version | tail -1 | cut -f2 -d':' | tr -d ' ')"
+          mod_version="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)"
           echo "::group::Versions"
-          echo "Project version = v${project_version}"
-          echo "Release version = ${{ github.event.release.tag_name }}"
+          echo "Mod version = v${mod_version}"
+          echo "Release tag = ${{ github.event.release.tag_name }}"
           echo "::endgroup::"
-          if [ "v${project_version}" != "${{ github.event.release.tag_name }}" ]; then
-            echo "::error file=gradle.properties::Project version does not match released tag"
+          if [ "v${mod_version}" != "${{ github.event.release.tag_name }}" ]; then
+            echo "::error file=gradle.properties::mod_version does not match release tag (expected v${mod_version}, got ${{ github.event.release.tag_name }})"
             exit 1
           fi
   upload-artifacts:
