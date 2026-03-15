@@ -8,12 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Shared lookup results used by both the Jade and TOP HUD providers. */
 public final class CompatHudInfo {
-
-  private static final int MAX_MOISTURE = 7;
 
   // --- Ender crop growth ---
   public final boolean isCropNotGrowing;
@@ -55,7 +54,8 @@ public final class CompatHudInfo {
 
   public static CompatHudInfo forTilledEndstone(BlockState blockState) {
     int moisture = blockState.getValue(TilledEndstoneBlock.MOISTURE);
-    return new CompatHudInfo(false, -1, moisture == MAX_MOISTURE, moisture, false, false, false);
+    return new CompatHudInfo(
+        false, -1, moisture == FarmBlock.MAX_MOISTURE, moisture, false, false, false);
   }
 
   public static CompatHudInfo forEndstone(Player player) {
