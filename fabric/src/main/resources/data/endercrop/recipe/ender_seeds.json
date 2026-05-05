@@ -1,19 +1,20 @@
 {
-  "result": {
-    "item": "endercrop:ender_seeds"
-  },
+  "type": "minecraft:crafting_shaped",
   "pattern": [
     " p ",
     "psp",
     " p "
   ],
-  "type": "minecraft:crafting_shaped",
   "key": {
     "p": {
       "item": "minecraft:ender_pearl"
     },
     "s": {
-      "tag": "forge:seeds"
+      "tag": "c:seeds"
     }
+  },
+  "result": {
+    "id": "endercrop:ender_seeds",
+    "count": 1
   }
 }
