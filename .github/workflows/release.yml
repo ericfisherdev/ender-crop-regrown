@@ -47,7 +47,7 @@ jobs:
           name: jars
           path: jars
       - name: Publish Fabric jar
-        uses: Kir-Antipov/mc-publish@v3.3
+        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
         with:
           curseforge-id: 1486489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -56,7 +56,7 @@ jobs:
           files: jars/fabric/build/libs/endercrop-regrown-*-fabric.jar
           name: Ender Crop ${{ github.event.release.tag_name }} (Fabric)
           version: ${{ github.event.release.tag_name }}
-          version-type: release
+          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
           changelog: ${{ github.event.release.body }}
           loaders: fabric
           game-versions: 1.21.1
@@ -72,7 +72,7 @@ jobs:
           name: jars
           path: jars
       - name: Publish NeoForge jar
-        uses: Kir-Antipov/mc-publish@v3.3
+        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
         with:
           curseforge-id: 1486489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           files: jars/neoforge/build/libs/endercrop-regrown-*-neoforge.jar
           name: Ender Crop ${{ github.event.release.tag_name }} (NeoForge)
           version: ${{ github.event.release.tag_name }}
-          version-type: release
+          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
           changelog: ${{ github.event.release.body }}
           loaders: neoforge
           game-versions: 1.21.1
