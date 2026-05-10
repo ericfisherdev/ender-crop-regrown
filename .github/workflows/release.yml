@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Compare mod version and release tag
         run: |
           mod_version="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)"
@@ -28,7 +28,7 @@ jobs:
       contents: write
     steps:
       - name: Download built jars
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: jars
           path: jars
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download built jars
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: jars
           path: jars
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download built jars
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: jars
           path: jars
