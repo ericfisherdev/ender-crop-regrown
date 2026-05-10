@@ -1,0 +1,7 @@
+{
+  "bookshelf:load_conditions": [
+    {"type": "bookshelf:mod_loaded", "values": ["botanypots"]}
+  ],
+  "type": "botanypots:block_derived_soil",
+  "block": "minecraft:end_stone"
+}

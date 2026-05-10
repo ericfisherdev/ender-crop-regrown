@@ -1,0 +1,10 @@
+{
+  "bookshelf:load_conditions": [
+    {"type": "bookshelf:mod_loaded", "values": ["botanypots"]},
+    {"type": "bookshelf:block_exists", "values": ["endercrop:ender_crop"]}
+  ],
+  "type": "botanypots:block_derived_crop",
+  "block": "endercrop:ender_crop",
+  "input": {"item": "endercrop:ender_seeds"},
+  "soil": {"tag": "botanypots:soil/end"}
+}

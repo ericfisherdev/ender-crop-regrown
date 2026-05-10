@@ -5,9 +5,11 @@ import static net.minecraft.world.level.block.Blocks.END_STONE;
 import be.mathiasdejong.endercrop.ModExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -47,7 +49,7 @@ public class TilledEndstoneBlock extends FarmBlock {
     if (!isNearWater(level, pos) && !level.isRainingAt(pos.above())) {
       if (moisture > 0) {
         level.setBlock(pos, state.setValue(MOISTURE, moisture - 1), 2);
-      } else if (!shouldMaintainFarmland(level, pos)) {
+      } else if (!hasCropAbove(level, pos)) {
         turnToEndStone(state, level, pos);
       }
     } else if (moisture < MAX_MOISTURE) {
@@ -68,5 +70,9 @@ public class TilledEndstoneBlock extends FarmBlock {
 
   public static void turnToEndStone(BlockState state, Level level, BlockPos pos) {
     level.setBlockAndUpdate(pos, pushEntitiesUp(state, END_STONE.defaultBlockState(), level, pos));
+  }
+
+  private static boolean hasCropAbove(BlockGetter level, BlockPos pos) {
+    return level.getBlockState(pos.above()).is(BlockTags.MAINTAINS_FARMLAND);
   }
 }
