@@ -1,0 +1,11 @@
+{
+  "bookshelf:load_conditions": [
+    {"type": "bookshelf:mod_loaded", "values": ["botanypots"]},
+    {"type": "bookshelf:block_exists", "values": ["endercrop:tilled_end_stone"]}
+  ],
+  "type": "botanypots:pot_interaction",
+  "held_item": {"tag": "minecraft:hoes"},
+  "soil_item": {"item": "minecraft:end_stone"},
+  "new_soil": {"id": "endercrop:tilled_end_stone"},
+  "sound_effect": {"id": "minecraft:item.hoe.till", "category": "BLOCKS"}
+}

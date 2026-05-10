@@ -1,0 +1,8 @@
+{
+  "bookshelf:load_conditions": [
+    {"type": "bookshelf:mod_loaded", "values": ["botanypots"]},
+    {"type": "bookshelf:block_exists", "values": ["endercrop:tilled_end_stone"]}
+  ],
+  "type": "botanypots:block_derived_soil",
+  "block": "endercrop:tilled_end_stone"
+}

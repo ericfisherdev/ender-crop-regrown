@@ -19,5 +19,5 @@ dependencies {
     }
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:${forgeconfigapiport_version}"
 
-    modImplementation "curse.maven:jade-324717:${jade_fabric_api_id}"
+    modImplementation "maven.modrinth:jade:5Sbkzz4O"
 }
