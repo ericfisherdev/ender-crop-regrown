@@ -10,5 +10,6 @@
     {"type": "bookshelf:block_exists", "values": ["endercrop:tilled_end_stone"]}
   ],
   "type": "botanypots:block_derived_soil",
-  "block": "endercrop:tilled_end_stone"
+  "block": "endercrop:tilled_end_stone",
+  "growth_modifier": 2.0
 }

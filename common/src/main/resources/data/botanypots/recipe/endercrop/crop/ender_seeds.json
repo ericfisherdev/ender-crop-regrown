@@ -12,5 +12,9 @@
   "type": "botanypots:block_derived_crop",
   "block": "endercrop:ender_crop",
   "input": {"item": "endercrop:ender_seeds"},
-  "soil": {"tag": "botanypots:soil/end"}
+  "soil": [
+    {"tag": "botanypots:soil/dirt"},
+    {"tag": "botanypots:soil/end"}
+  ],
+  "grow_time": 48000
 }
