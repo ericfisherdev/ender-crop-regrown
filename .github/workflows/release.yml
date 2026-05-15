@@ -1,28 +1,94 @@
+name: Release
+
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: "Mark as pre-release (appends -rc-<rc> to tag)"
+        type: boolean
+        default: false
+      rc:
+        description: "Release candidate number (only used when prerelease=true)"
+        type: string
+        default: "1"
 
 jobs:
-  call-build:
-    uses: ./.github/workflows/build.yml
-  verify-version:
+  prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.compute.outputs.tag }}
+      prerelease: ${{ steps.compute.outputs.prerelease }}
+      minecraft_version: ${{ steps.compute.outputs.minecraft_version }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - name: Compare mod version and release tag
+        with:
+          fetch-depth: 0
+
+      - name: Compute and validate tag
+        id: compute
+        env:
+          PRERELEASE: ${{ inputs.prerelease }}
+          RC: ${{ inputs.rc }}
         run: |
-          mod_version="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)"
-          echo "::group::Versions"
-          echo "Mod version = ${mod_version}"
-          echo "Release tag = ${{ github.event.release.tag_name }}"
-          echo "::endgroup::"
-          if [ "${mod_version}" != "${{ github.event.release.tag_name }}" ]; then
-            echo "::error file=gradle.properties::mod_version does not match release tag (expected ${mod_version}, got ${{ github.event.release.tag_name }})"
+          set -euo pipefail
+          mc_version="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2-)"
+          mod_version="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2-)"
+
+          if ! [[ "$mc_version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "::error file=gradle.properties::minecraft_version '$mc_version' is not a valid Minecraft version"
             exit 1
           fi
+          if ! [[ "$mod_version" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "::error file=gradle.properties::mod_version '$mod_version' is not a valid CalVer (YYYY.M.D[.N])"
+            exit 1
+          fi
+
+          tag="${mc_version}-${mod_version}"
+          if [ "$PRERELEASE" = "true" ]; then
+            if ! [[ "$RC" =~ ^[0-9]+$ ]]; then
+              echo "::error::rc input '$RC' must be a positive integer"
+              exit 1
+            fi
+            tag="${tag}-rc-${RC}"
+          fi
+
+          if ! [[ "$tag" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9]{4}\.[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.-]+)*$ ]]; then
+            echo "::error::computed tag '$tag' does not match release tag policy"
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "::error::tag $tag already exists"
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=$mc_version" >> "$GITHUB_OUTPUT"
+          echo "Computed tag: $tag (prerelease=$PRERELEASE)"
+
+      - name: Create tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.compute.outputs.tag }}
+          PRERELEASE: ${{ steps.compute.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          flags=( --generate-notes --target "$GITHUB_SHA" --title "$TAG" )
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=( --prerelease )
+          fi
+          gh release create "$TAG" "${flags[@]}" --repo "$GITHUB_REPOSITORY"
+
+  call-build:
+    needs: prepare
+    uses: ./.github/workflows/build.yml
+
   upload-artifacts:
-    needs: [call-build, verify-version]
+    needs: [prepare, call-build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,12 +101,26 @@ jobs:
       - name: Upload jars to release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.event.release.tag_name }} $(find jars -name '*.jar') --repo ${{ github.repository }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$TAG" $(find jars -name '*.jar') --repo "$GITHUB_REPOSITORY"
 
   publish-fabric:
-    needs: [call-build, verify-version]
+    needs: [prepare, call-build]
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
+          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body)"
+          {
+            echo 'body<<RELEASE_BODY_EOF'
+            echo "$body"
+            echo RELEASE_BODY_EOF
+          } >> "$GITHUB_OUTPUT"
       - name: Download built jars
         uses: actions/download-artifact@v5
         with:
@@ -54,18 +134,31 @@ jobs:
           modrinth-id: ender-crop-regrown
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: jars/fabric/build/libs/endercrop-regrown-*-fabric.jar
-          name: Ender Crop ${{ github.event.release.tag_name }} (Fabric)
-          version: ${{ github.event.release.tag_name }}
-          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
-          changelog: ${{ github.event.release.body }}
+          name: Ender Crop ${{ needs.prepare.outputs.tag }} (Fabric)
+          version: ${{ needs.prepare.outputs.tag }}
+          version-type: ${{ needs.prepare.outputs.prerelease == 'true' && 'beta' || 'release' }}
+          changelog: ${{ steps.notes.outputs.body }}
           loaders: fabric
-          game-versions: 1.21.1
+          game-versions: ${{ needs.prepare.outputs.minecraft_version }}
           java: 21
 
   publish-neoforge:
-    needs: [call-build, verify-version]
+    needs: [prepare, call-build]
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
+          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body)"
+          {
+            echo 'body<<RELEASE_BODY_EOF'
+            echo "$body"
+            echo RELEASE_BODY_EOF
+          } >> "$GITHUB_OUTPUT"
       - name: Download built jars
         uses: actions/download-artifact@v5
         with:
@@ -79,10 +172,10 @@ jobs:
           modrinth-id: ender-crop-regrown
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: jars/neoforge/build/libs/endercrop-regrown-*-neoforge.jar
-          name: Ender Crop ${{ github.event.release.tag_name }} (NeoForge)
-          version: ${{ github.event.release.tag_name }}
-          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
-          changelog: ${{ github.event.release.body }}
+          name: Ender Crop ${{ needs.prepare.outputs.tag }} (NeoForge)
+          version: ${{ needs.prepare.outputs.tag }}
+          version-type: ${{ needs.prepare.outputs.prerelease == 'true' && 'beta' || 'release' }}
+          changelog: ${{ steps.notes.outputs.body }}
           loaders: neoforge
-          game-versions: 1.21.1
+          game-versions: ${{ needs.prepare.outputs.minecraft_version }}
           java: 21
