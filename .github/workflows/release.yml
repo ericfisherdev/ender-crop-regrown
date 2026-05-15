@@ -48,7 +48,7 @@ jobs:
 
           tag="${mc_version}-${mod_version}"
           if [ "$PRERELEASE" = "true" ]; then
-            if ! [[ "$RC" =~ ^[0-9]+$ ]]; then
+            if ! [[ "$RC" =~ ^[1-9][0-9]*$ ]]; then
               echo "::error::rc input '$RC' must be a positive integer"
               exit 1
             fi
