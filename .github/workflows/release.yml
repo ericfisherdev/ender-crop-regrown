@@ -30,6 +30,7 @@ jobs:
       - name: Compute and validate tag
         id: compute
         env:
+          GH_TOKEN: ${{ github.token }}
           PRERELEASE: ${{ inputs.prerelease }}
           RC: ${{ inputs.rc }}
         run: |
@@ -65,19 +66,24 @@ jobs:
             exit 1
           fi
 
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::a release (possibly a leftover draft from a failed run) already exists for $tag; delete it before retrying"
+            exit 1
+          fi
+
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$mc_version" >> "$GITHUB_OUTPUT"
           echo "Computed tag: $tag (prerelease=$PRERELEASE)"
 
-      - name: Create tag and GitHub release
+      - name: Create draft GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.compute.outputs.tag }}
           PRERELEASE: ${{ steps.compute.outputs.prerelease }}
         run: |
           set -euo pipefail
-          flags=( --generate-notes --target "$GITHUB_SHA" --title "$TAG" )
+          flags=( --draft --generate-notes --target "$GITHUB_SHA" --title "$TAG" )
           if [ "$PRERELEASE" = "true" ]; then
             flags+=( --prerelease )
           fi
@@ -179,3 +185,15 @@ jobs:
           loaders: neoforge
           game-versions: ${{ needs.prepare.outputs.minecraft_version }}
           java: 21
+
+  finalize-release:
+    needs: [prepare, upload-artifacts, publish-fabric, publish-neoforge]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY"
