@@ -1,34 +1,31 @@
 package be.mathiasdejong.endercrop.block;
 
-import be.mathiasdejong.endercrop.ModExpectPlatform;
 import be.mathiasdejong.endercrop.config.EnderCropConfiguration;
 import be.mathiasdejong.endercrop.init.ModBlocks;
 import be.mathiasdejong.endercrop.init.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Endermite;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class EnderCropBlock extends CropBlock {
 
   private static final Properties PROPERTIES =
       Properties.of()
           .mapColor(MapColor.PLANT)
-          .noCollission()
+          .noCollision()
           .noOcclusion()
           .randomTicks()
           .instabreak()
@@ -38,75 +35,41 @@ public class EnderCropBlock extends CropBlock {
     super(PROPERTIES);
   }
 
-  @Override
-  public void playerDestroy(
-      Level level,
-      Player player,
-      BlockPos pos,
-      BlockState state,
-      @Nullable BlockEntity blockEntity,
-      ItemStack tool) {
-    super.playerDestroy(level, player, pos, state, blockEntity, tool);
-    if (EnderCropConfiguration.miteChance.get() > 0
-        && isOnEndstone(level, pos)
-        && this.isMaxAge(state)) {
-      final int roll = level.random.nextInt(EnderCropConfiguration.miteChance.get());
-      if (roll == 0) {
-        final Endermite mite = EntityType.ENDERMITE.create(level);
-        if (mite != null) {
-          mite.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-          mite.lookAt(player, 360.0F, 360.0F);
-          mite.setTarget(player);
-          level.addFreshEntity(mite);
-        }
-      }
-    }
-  }
-
-  private static boolean isOnEndstone(LevelReader worldIn, BlockPos pos) {
-    return worldIn.getBlockState(pos.below()).is(ModBlocks.TILLED_END_STONE.get());
-  }
-
-  private static boolean isOnEndstone(BlockState soilState) {
+  static boolean isOnEndstone(BlockState soilState) {
     return soilState.is(ModBlocks.TILLED_END_STONE.get());
   }
 
   @Override
-  public boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+  protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
     return state.is(Blocks.FARMLAND) || state.is(ModBlocks.TILLED_END_STONE.get());
   }
 
   @Override
-  public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-    if (!level.isLoaded(pos)) return; // Neoforge
+  protected void randomTick(
+      BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    if (!level.isLoaded(pos)) return;
     final BlockState soilState = level.getBlockState(pos.below());
     if (hasSufficientLight(soilState, level, pos)) {
       final int age = this.getAge(state);
       if (!this.isMaxAge(state)) {
-        final float growthChance = getGrowthSpeed(this, soilState, level, pos);
+        final float growthChance = computeGrowthSpeed(this, soilState, level, pos);
         final boolean doGrow =
             growthChance > 0 && random.nextInt((int) (25.0F / growthChance) + 1) == 0;
-        if (ModExpectPlatform.onCropsGrowPre(level, pos, state, doGrow)) { // Neoforge
+        if (CommonHooks.canCropGrow(level, pos, state, doGrow)) {
           level.setBlock(pos, this.getStateForAge(age + 1), 2);
-          ModExpectPlatform.onCropsGrowPost(level, pos, state); // Neoforge
+          CommonHooks.fireCropGrowPost(level, pos, state);
         }
       }
     }
   }
 
-  public static boolean hasSufficientLight(
-      BlockState soilState, LevelReader worldIn, BlockPos pos) {
+  static boolean hasSufficientLight(BlockState soilState, LevelReader worldIn, BlockPos pos) {
     return isOnEndstone(soilState) || worldIn.getRawBrightness(pos, 0) <= 7;
   }
 
-  public static boolean hasSufficientLight(LevelReader worldIn, BlockPos pos) {
-    return hasSufficientLight(worldIn.getBlockState(pos.below()), worldIn, pos);
-  }
-
-  // Reimplementing the whole thing because it's static, and we don't want to penalize tilled end
-  // stone
-  @SuppressWarnings("UnreachableCode")
-  protected static float getGrowthSpeed(
+  // Reimplementing CropBlock#getGrowthSpeed so we can honour the
+  // tilled-end-stone multiplier. The vanilla helper only checks farmland moisture.
+  protected static float computeGrowthSpeed(
       Block block, BlockState centerSoilState, Level level, BlockPos pos) {
     float f = 1.0F;
     BlockPos soilOrigin = pos.below();
@@ -119,18 +82,16 @@ public class EnderCropBlock extends CropBlock {
             (i == 0 && j == 0)
                 ? centerSoilState
                 : level.getBlockState(mutable.setWithOffset(soilOrigin, i, 0, j));
-        if (ModExpectPlatform.canSustainPlant(
-            soilState, level, soilOrigin, Direction.UP, (EnderCropBlock) block)) {
+        if (canSustainEnderCrop(soilState)) {
           g = 1.0F;
-          if (soilState.getValue(FarmBlock.MOISTURE) > 0) {
+          if (soilState.hasProperty(FarmlandBlock.MOISTURE)
+              && soilState.getValue(FarmlandBlock.MOISTURE) > 0) {
             g = 3.0F;
           }
         }
-
         if (i != 0 || j != 0) {
           g /= 4.0F;
         }
-
         f += g;
       }
     }
@@ -154,10 +115,16 @@ public class EnderCropBlock extends CropBlock {
       }
     }
 
-    if (isOnEndstone(centerSoilState)) f *= EnderCropConfiguration.tilledEndMultiplier.get();
-    else f *= EnderCropConfiguration.tilledSoilMultiplier.get();
-
+    if (isOnEndstone(centerSoilState)) {
+      f *= EnderCropConfiguration.tilledEndMultiplier.get();
+    } else {
+      f *= EnderCropConfiguration.tilledSoilMultiplier.get();
+    }
     return f;
+  }
+
+  private static boolean canSustainEnderCrop(BlockState soilState) {
+    return soilState.is(Blocks.FARMLAND) || soilState.is(ModBlocks.TILLED_END_STONE.get());
   }
 
   @Override
@@ -166,16 +133,13 @@ public class EnderCropBlock extends CropBlock {
   }
 
   @Override
-  public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-    final BlockPos below = pos.below();
-    final BlockState soilState = level.getBlockState(below);
-    //noinspection ConstantValue
-    return hasSufficientLight(soilState, level, pos)
-        && ModExpectPlatform.canSustainPlant(soilState, level, below, Direction.UP, this);
+  protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    final BlockState soilState = level.getBlockState(pos.below());
+    return hasSufficientLight(soilState, level, pos) && canSustainEnderCrop(soilState);
   }
 
   @Override
-  @NotNull protected ItemLike getBaseSeedId() {
+  protected @NotNull ItemLike getBaseSeedId() {
     return ModItems.ENDER_SEEDS.get();
   }
 

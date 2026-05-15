@@ -1,24 +1,28 @@
 package be.mathiasdejong.endercrop.item;
 
 import be.mathiasdejong.endercrop.init.ModBlocks;
-import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
-public class EnderSeedsItem extends ItemNameBlockItem {
+public class EnderSeedsItem extends BlockItem {
 
-  public EnderSeedsItem() {
-    super(ModBlocks.ENDER_CROP.get(), new Properties().arch$tab(CreativeModeTabs.NATURAL_BLOCKS));
+  public EnderSeedsItem(Item.Properties properties) {
+    super(ModBlocks.ENDER_CROP.get(), properties.useBlockDescriptionPrefix());
   }
 
   @Override
   public void appendHoverText(
-      ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-    super.appendHoverText(stack, context, tooltip, flag);
-    tooltip.add(Component.translatable("endercrop.tip.seed"));
+      ItemStack stack,
+      Item.TooltipContext context,
+      TooltipDisplay display,
+      Consumer<Component> tooltip,
+      TooltipFlag flag) {
+    super.appendHoverText(stack, context, display, tooltip, flag);
+    tooltip.accept(Component.translatable("endercrop.tip.seed"));
   }
 }

@@ -1,22 +1,21 @@
 package be.mathiasdejong.endercrop.init;
 
-import be.mathiasdejong.endercrop.ModExpectPlatform;
 import be.mathiasdejong.endercrop.Reference;
 import be.mathiasdejong.endercrop.block.EnderCropBlock;
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.block.Block;
+import be.mathiasdejong.endercrop.block.TilledEndstoneBlock;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModBlocks {
 
-  public static final DeferredRegister<Block> BLOCKS =
-      DeferredRegister.create(Reference.MOD_ID, Registries.BLOCK);
+  public static final DeferredRegister.Blocks BLOCKS =
+      DeferredRegister.createBlocks(Reference.MOD_ID);
 
-  public static final RegistrySupplier<Block> ENDER_CROP =
+  public static final DeferredBlock<EnderCropBlock> ENDER_CROP =
       BLOCKS.register(Reference.Blocks.ENDER_CROP, EnderCropBlock::new);
 
-  public static final RegistrySupplier<Block> TILLED_END_STONE =
-      BLOCKS.register(
-          Reference.Blocks.TILLED_END_STONE, ModExpectPlatform::getTillendEndstoneBlock);
+  public static final DeferredBlock<TilledEndstoneBlock> TILLED_END_STONE =
+      BLOCKS.register(Reference.Blocks.TILLED_END_STONE, TilledEndstoneBlock::new);
+
+  private ModBlocks() {}
 }
