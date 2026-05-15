@@ -25,6 +25,4 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: jars
-          path: |
-            fabric/build/libs/endercrop-regrown-*-fabric.jar
-            neoforge/build/libs/endercrop-regrown-*-neoforge.jar
+          path: build/libs/endercrop-regrown-*.jar

@@ -110,44 +110,6 @@ jobs:
           TAG: ${{ needs.prepare.outputs.tag }}
         run: gh release upload "$TAG" $(find jars -name '*.jar') --repo "$GITHUB_REPOSITORY"
 
-  publish-fabric:
-    needs: [prepare, call-build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fetch release notes
-        id: notes
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.prepare.outputs.tag }}
-        run: |
-          set -euo pipefail
-          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body)"
-          {
-            echo 'body<<RELEASE_BODY_EOF'
-            echo "$body"
-            echo RELEASE_BODY_EOF
-          } >> "$GITHUB_OUTPUT"
-      - name: Download built jars
-        uses: actions/download-artifact@v5
-        with:
-          name: jars
-          path: jars
-      - name: Publish Fabric jar
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
-        with:
-          curseforge-id: 1486489
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          modrinth-id: ender-crop-regrown
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: jars/fabric/build/libs/endercrop-regrown-*-fabric.jar
-          name: Ender Crop ${{ needs.prepare.outputs.tag }} (Fabric)
-          version: ${{ needs.prepare.outputs.tag }}
-          version-type: ${{ needs.prepare.outputs.prerelease == 'true' && 'beta' || 'release' }}
-          changelog: ${{ steps.notes.outputs.body }}
-          loaders: fabric
-          game-versions: ${{ needs.prepare.outputs.minecraft_version }}
-          java: 21
-
   publish-neoforge:
     needs: [prepare, call-build]
     runs-on: ubuntu-latest
@@ -177,7 +139,7 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           modrinth-id: ender-crop-regrown
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: jars/neoforge/build/libs/endercrop-regrown-*-neoforge.jar
+          files: jars/endercrop-regrown-*.jar
           name: Ender Crop ${{ needs.prepare.outputs.tag }} (NeoForge)
           version: ${{ needs.prepare.outputs.tag }}
           version-type: ${{ needs.prepare.outputs.prerelease == 'true' && 'beta' || 'release' }}
@@ -187,7 +149,7 @@ jobs:
           java: 21
 
   finalize-release:
-    needs: [prepare, upload-artifacts, publish-fabric, publish-neoforge]
+    needs: [prepare, upload-artifacts, publish-neoforge]
     runs-on: ubuntu-latest
     permissions:
       contents: write
