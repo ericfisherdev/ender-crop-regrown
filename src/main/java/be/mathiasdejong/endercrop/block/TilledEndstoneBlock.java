@@ -2,21 +2,24 @@ package be.mathiasdejong.endercrop.block;
 
 import static net.minecraft.world.level.block.Blocks.END_STONE;
 
-import be.mathiasdejong.endercrop.ModExpectPlatform;
+import be.mathiasdejong.endercrop.init.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.common.CommonHooks;
 
-public class TilledEndstoneBlock extends FarmBlock {
+public class TilledEndstoneBlock extends FarmlandBlock {
 
   private static final Properties PROPERTIES =
       Properties.of()
@@ -32,6 +35,17 @@ public class TilledEndstoneBlock extends FarmBlock {
   }
 
   @Override
+  public boolean isFertile(BlockState state, BlockGetter level, BlockPos pos) {
+    return state.is(this) && state.getValue(MOISTURE) > 0;
+  }
+
+  @Override
+  public TriState canSustainPlant(
+      BlockState state, BlockGetter level, BlockPos pos, Direction facing, BlockState plantState) {
+    return plantState.is(ModBlocks.ENDER_CROP.get()) ? TriState.TRUE : TriState.DEFAULT;
+  }
+
+  @Override
   public BlockState getStateForPlacement(BlockPlaceContext context) {
     return !this.defaultBlockState().canSurvive(context.getLevel(), context.getClickedPos())
         ? END_STONE.defaultBlockState()
@@ -39,12 +53,13 @@ public class TilledEndstoneBlock extends FarmBlock {
   }
 
   @Override
-  public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource pRand) {
+  protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource pRand) {
     if (!state.canSurvive(level, pos)) turnToEndStone(state, level, pos);
   }
 
   @Override
-  public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+  protected void randomTick(
+      BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
     final int moisture = state.getValue(MOISTURE);
     if (!isNearWater(level, pos) && !level.isRainingAt(pos.above())) {
       if (moisture > 0) {
@@ -59,13 +74,12 @@ public class TilledEndstoneBlock extends FarmBlock {
 
   @Override
   public void fallOn(
-      Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
-    //noinspection ConstantValue
-    if (!level.isClientSide
-        && ModExpectPlatform.onFarmlandTrample(level, pos, state, fallDistance, entity))
+      Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+    if (level instanceof ServerLevel serverLevel
+        && CommonHooks.onFarmlandTrample(serverLevel, pos, state, (float) fallDistance, entity)) {
       turnToEndStone(level.getBlockState(pos), level, pos);
-
-    entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
+    }
+    entity.causeFallDamage((float) fallDistance, 1.0F, entity.damageSources().fall());
   }
 
   public static void turnToEndStone(BlockState state, Level level, BlockPos pos) {
