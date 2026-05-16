@@ -63,7 +63,8 @@ public class EnderCropBlock extends CropBlock {
     }
   }
 
-  static boolean hasSufficientLight(BlockState soilState, LevelReader worldIn, BlockPos pos) {
+  public static boolean hasSufficientLight(
+      BlockState soilState, LevelReader worldIn, BlockPos pos) {
     return isOnEndstone(soilState) || worldIn.getRawBrightness(pos, 0) <= 7;
   }
 
