@@ -1,6 +1,6 @@
 {
   "pack": {
-    "description": "Resources used for Ender Crop",
+    "description": "Resources and data used for Ender Crop",
     "min_format": [84, 0],
     "max_format": [101, 1]
   }
