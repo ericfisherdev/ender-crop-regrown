@@ -6,12 +6,8 @@
     " p "
   ],
   "key": {
-    "p": {
-      "item": "minecraft:ender_pearl"
-    },
-    "s": {
-      "tag": "c:seeds"
-    }
+    "p": "minecraft:ender_pearl",
+    "s": "#c:seeds"
   },
   "result": {
     "id": "endercrop:ender_seeds",
