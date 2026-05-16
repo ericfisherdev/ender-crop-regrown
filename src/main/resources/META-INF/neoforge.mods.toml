@@ -24,3 +24,12 @@ type = "required"
 versionRange = "[${minecraft_version},)"
 ordering = "NONE"
 side = "BOTH"
+
+# Optional client-side HUD integration. The mod loads and runs without Jade;
+# JadeCompatibility activates only when Jade is present.
+[[dependencies.${mod_id}]]
+modId = "jade"
+type = "optional"
+versionRange = "*"
+ordering = "AFTER"
+side = "CLIENT"

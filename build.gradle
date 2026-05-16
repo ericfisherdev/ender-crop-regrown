@@ -67,9 +67,14 @@ neoForge {
 }
 
 dependencies {
-    // Optional integrations are wired up in Phase 4 (compat rewire). Left empty
-    // here so the build does not depend on Jade / TOP / Cloth Config artifacts
-    // before their 26.1.2 versions are pinned in Phase 1.
+    // Optional integration: Jade in-world HUD. Compiled against but not bundled —
+    // JadeCompatibility is discovered by Jade's @WailaPlugin scan only when Jade is
+    // installed, so the mod runs fine without it. Jade 26.1.1 for NeoForge,
+    // CurseForge file 8068368 (pinned by Phase 1 dependency research).
+    // TheOneProbe is intentionally absent: it has no MC 26.1.x release (plan R9).
+    // Cloth Config is intentionally absent: NeoForge's built-in ConfigurationScreen
+    // supersedes it on the 26.1.x line (plan D6).
+    compileOnly("curse.maven:jade-324717:8068368") { transitive = false }
 }
 
 processResources {
