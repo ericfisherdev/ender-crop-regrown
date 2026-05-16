@@ -4,6 +4,17 @@
 <img src="icons/logo-wide@10x.png" />
 </center>
 
+## Supported Versions
+
+| Minecraft | Loader | Branch |
+|---|---|---|
+| 26.1.2 | NeoForge only | `26.1.2` |
+| 1.21.1 | NeoForge + Fabric | `1.21.1` |
+
+> The 26.1.x line is **NeoForge only** — Fabric is not supported there.
+> Fabric players should stay on the 1.21.1 build. See the release notes for
+> details.
+
 ## The Crop
 
 <center>
@@ -38,7 +49,12 @@ The ender crop has 8 growth stages. Harvesting it at any stage will drop Ender S
 
 To obtain tilled end stone you simply right-click regular end stone with a hoe that has been enchanted with Unbreaking I or a hoe-like tool (AIOT, Kama, Scythe) with mining level 1 (Stone).
 
-## Waila/The One Probe integration:
+## Jade integration
+
+On the 26.1.x line the in-world HUD is provided through [Jade](https://www.curseforge.com/minecraft/mc-mods/jade).
+The One Probe integration is available on the 1.21.1 line only — TheOneProbe has
+no 26.1.x release yet.
+
 <center>
 <table>
 <tr>
