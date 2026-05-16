@@ -146,7 +146,10 @@ jobs:
           changelog: ${{ steps.notes.outputs.body }}
           loaders: neoforge
           game-versions: ${{ needs.prepare.outputs.minecraft_version }}
-          java: 25
+          # No `java` input: mc-publish v3.3 has no Java-version allowlist, so an
+          # unrecognised value could be silently dropped. The mod needs Java 25
+          # (it ships for MC 26.1.2 / NeoForge 26.1.2); that runtime requirement
+          # is enforced by the loader regardless of listing metadata.
 
   finalize-release:
     needs: [prepare, upload-artifacts, publish-neoforge]
