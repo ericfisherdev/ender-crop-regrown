@@ -22,17 +22,23 @@ import org.jetbrains.annotations.NotNull;
 
 public class EnderCropBlock extends CropBlock {
 
-  private static final Properties PROPERTIES =
-      Properties.of()
-          .mapColor(MapColor.PLANT)
-          .noCollision()
-          .noOcclusion()
-          .randomTicks()
-          .instabreak()
-          .sound(SoundType.CROP);
+  public EnderCropBlock(Properties properties) {
+    super(properties);
+  }
 
-  public EnderCropBlock() {
-    super(PROPERTIES);
+  /**
+   * Base block properties. Supplied to {@code DeferredRegister.Blocks#registerBlock} so the
+   * registry sets the block id on them before the block is constructed — MC 1.21.2+ rejects a
+   * {@code Properties} instance that has no id.
+   */
+  public static Properties baseProperties() {
+    return Properties.of()
+        .mapColor(MapColor.PLANT)
+        .noCollision()
+        .noOcclusion()
+        .randomTicks()
+        .instabreak()
+        .sound(SoundType.CROP);
   }
 
   static boolean isOnEndstone(BlockState soilState) {

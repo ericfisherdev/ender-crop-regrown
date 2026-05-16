@@ -21,17 +21,23 @@ import net.neoforged.neoforge.common.CommonHooks;
 
 public class TilledEndstoneBlock extends FarmlandBlock {
 
-  private static final Properties PROPERTIES =
-      Properties.of()
-          .mapColor(MapColor.SAND)
-          .randomTicks()
-          .destroyTime(0.6F)
-          .requiresCorrectToolForDrops()
-          .strength(3.0F, 9.0F)
-          .sound(SoundType.GRAVEL);
+  public TilledEndstoneBlock(Properties properties) {
+    super(properties);
+  }
 
-  public TilledEndstoneBlock() {
-    super(PROPERTIES);
+  /**
+   * Base block properties. Supplied to {@code DeferredRegister.Blocks#registerBlock} so the
+   * registry sets the block id on them before the block is constructed — MC 1.21.2+ rejects a
+   * {@code Properties} instance that has no id.
+   */
+  public static Properties baseProperties() {
+    return Properties.of()
+        .mapColor(MapColor.SAND)
+        .randomTicks()
+        .destroyTime(0.6F)
+        .requiresCorrectToolForDrops()
+        .strength(3.0F, 9.0F)
+        .sound(SoundType.GRAVEL);
   }
 
   @Override

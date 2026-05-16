@@ -11,11 +11,19 @@ public final class ModBlocks {
   public static final DeferredRegister.Blocks BLOCKS =
       DeferredRegister.createBlocks(Reference.MOD_ID);
 
+  // registerBlock(name, factory, properties-supplier) lets DeferredRegister set the
+  // block id on the Properties before the block is constructed. The plain
+  // register(name, supplier) form skips that step, which crashes on load under
+  // MC 1.21.2+ ("Block id not set").
   public static final DeferredBlock<EnderCropBlock> ENDER_CROP =
-      BLOCKS.register(Reference.Blocks.ENDER_CROP, EnderCropBlock::new);
+      BLOCKS.registerBlock(
+          Reference.Blocks.ENDER_CROP, EnderCropBlock::new, EnderCropBlock::baseProperties);
 
   public static final DeferredBlock<TilledEndstoneBlock> TILLED_END_STONE =
-      BLOCKS.register(Reference.Blocks.TILLED_END_STONE, TilledEndstoneBlock::new);
+      BLOCKS.registerBlock(
+          Reference.Blocks.TILLED_END_STONE,
+          TilledEndstoneBlock::new,
+          TilledEndstoneBlock::baseProperties);
 
   private ModBlocks() {}
 }
