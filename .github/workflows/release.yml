@@ -139,14 +139,14 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           modrinth-id: ender-crop-regrown
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: jars/endercrop-regrown-*.jar
+          files: jars/endercrop-regrown-!(*-sources).jar
           name: Ender Crop ${{ needs.prepare.outputs.tag }} (NeoForge)
           version: ${{ needs.prepare.outputs.tag }}
           version-type: ${{ needs.prepare.outputs.prerelease == 'true' && 'beta' || 'release' }}
           changelog: ${{ steps.notes.outputs.body }}
           loaders: neoforge
           game-versions: ${{ needs.prepare.outputs.minecraft_version }}
-          java: 21
+          java: 25
 
   finalize-release:
     needs: [prepare, upload-artifacts, publish-neoforge]
