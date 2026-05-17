@@ -1,8 +1,12 @@
-# Ender Crop
+# Ender Crop: Regrown
 
 <center>
 <img src="icons/logo-wide@10x.png" />
 </center>
+
+## About
+
+This is a port of the original <a href="https://github.com/DrManganese/ender-crop">Ender Crop by DrManganese</a> updated for Minecraft 1.21.1 and on. I claim no owndership of the original concept or code written prior to Minecraft version 1.21.1. My intention is not to add to or alter this mod in any way other than continued Minecraft version support, bug fixes, and occasional added compatibility with other mods.
 
 ## Supported Versions
 
