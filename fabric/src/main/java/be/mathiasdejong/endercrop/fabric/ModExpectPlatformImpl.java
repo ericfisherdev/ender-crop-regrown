@@ -68,10 +68,10 @@ public class ModExpectPlatformImpl extends ModExpectPlatform {
   public static boolean onFarmlandTrample(
       Level level, BlockPos pos, BlockState state, float fallDistance, Entity entity) {
     // Vanilla logic
-    return level.random.nextFloat() < fallDistance - -1.5F
+    return level.random.nextFloat() < fallDistance - 0.5F
         && entity instanceof LivingEntity
         && (entity instanceof Player || level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))
-        && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > -1.512F
+        && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > 0.512F
         && InteractionEvent.FARMLAND_TRAMPLE
                 .invoker()
                 .trample(level, pos, state, fallDistance, entity)
