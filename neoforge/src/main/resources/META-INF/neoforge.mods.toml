@@ -20,6 +20,6 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "architectury"
 type = "required"
-versionRange = "[${architectury_version},)"
+versionRange = "[${architectury_version},14)"
 ordering = "NONE"
 side = "BOTH"
