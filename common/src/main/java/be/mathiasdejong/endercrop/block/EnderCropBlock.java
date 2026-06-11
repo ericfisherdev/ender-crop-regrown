@@ -115,14 +115,14 @@ public class EnderCropBlock extends CropBlock {
     for (int i = -1; i <= 1; ++i) {
       for (int j = -1; j <= 1; ++j) {
         float g = 0.0F;
-        BlockState soilState =
-            (i == 0 && j == 0)
-                ? centerSoilState
-                : level.getBlockState(mutable.setWithOffset(soilOrigin, i, 0, j));
+        final boolean isCenter = i == 0 && j == 0;
+        final BlockPos soilPos = isCenter ? soilOrigin : mutable.setWithOffset(soilOrigin, i, 0, j);
+        final BlockState soilState = isCenter ? centerSoilState : level.getBlockState(soilPos);
         if (ModExpectPlatform.canSustainPlant(
-            soilState, level, soilOrigin, Direction.UP, (EnderCropBlock) block)) {
+            soilState, level, soilPos, Direction.UP, (EnderCropBlock) block)) {
           g = 1.0F;
-          if (soilState.getValue(FarmBlock.MOISTURE) > 0) {
+          if (soilState.hasProperty(FarmBlock.MOISTURE)
+              && soilState.getValue(FarmBlock.MOISTURE) > 0) {
             g = 3.0F;
           }
         }
