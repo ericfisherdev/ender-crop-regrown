@@ -22,7 +22,6 @@ public class TilledEndstoneBlock extends FarmBlock {
       Properties.of()
           .mapColor(MapColor.SAND)
           .randomTicks()
-          .destroyTime(0.6F)
           .requiresCorrectToolForDrops()
           .strength(3.0F, 9.0F)
           .sound(SoundType.GRAVEL);
