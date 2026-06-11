@@ -61,7 +61,7 @@ public class WailaCompatibility implements IWailaPlugin {
 
     private static final Component CHECK = Component.literal("✔").withStyle(GREEN);
     private static final Component X = Component.literal("✕").withStyle(RED);
-    private static final Component TILL = Component.translatable("endercrop.waila:till");
+    private static final Component TILL = Component.translatable("endercrop.waila.till");
     private static final Component UNBREAKING_HINT =
         Component.literal(" (")
             .append(
