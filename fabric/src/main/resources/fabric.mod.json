@@ -14,7 +14,7 @@
   ],
   "contact": {
     "homepage": "${mod_url}",
-    "sources": "${mod_url}/tree/main",
+    "sources": "${mod_url}/tree/1.21.1",
     "issues": "${mod_url}/issues"
   },
   "license": "${mod_licence}",
@@ -33,7 +33,7 @@
   },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.21.1",
+    "minecraft": "~1.21.1",
     "architectury": ">=${architectury_version}",
     "forgeconfigapiport": ">=8.0.0"
   }
