@@ -47,7 +47,7 @@ jobs:
           name: jars
           path: jars
       - name: Publish Fabric jar
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        uses: Kira-NT/mc-publish@c23376546a97f5ba7984e94445da359459b14419 # v3.3.2
         with:
           curseforge-id: 1486489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -60,6 +60,7 @@ jobs:
           changelog: ${{ github.event.release.body }}
           loaders: fabric
           game-versions: 1.21.1
+          environment: client | server
           java: 21
 
   publish-neoforge:
@@ -72,7 +73,7 @@ jobs:
           name: jars
           path: jars
       - name: Publish NeoForge jar
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        uses: Kira-NT/mc-publish@c23376546a97f5ba7984e94445da359459b14419 # v3.3.2
         with:
           curseforge-id: 1486489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -85,4 +86,5 @@ jobs:
           changelog: ${{ github.event.release.body }}
           loaders: neoforge
           game-versions: 1.21.1
+          environment: client | server
           java: 21
