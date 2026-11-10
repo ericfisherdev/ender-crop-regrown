@@ -2,7 +2,7 @@ name: Gradle build
 
 on:
   push:
-    branches: [ '*' ]
+    branches: ['*.*.*']
   pull_request:
   workflow_call:
 
