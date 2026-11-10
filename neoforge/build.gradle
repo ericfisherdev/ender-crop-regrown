@@ -9,11 +9,6 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
-
-    neoForge {
-//        convertAccessWideners = true
-//        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-    }
 }
 
 configurations {
@@ -62,6 +57,7 @@ remapJar {
     dependsOn shadowJar
     from(rootProject.file("./LICENSE"))
     archiveClassifier.set("neoforge")
+    atAccessWideners.add "endercrop.accesswidener"
 }
 
 jar {
