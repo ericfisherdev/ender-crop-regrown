@@ -1,6 +1,6 @@
 {
   "item.endercrop.ender_seeds": "Семена края",
-  "block.endercrop.ender_crop": "Семя края",
+  "block.endercrop.ender_crop": "Растение края",
   "block.endercrop.tilled_end_stone": "Вспаханный эндерняк",
   "endercrop.alert.hoe": "Этот блок может быть вспахан только мотыгой, зачарованной на Прочность I+",
   "endercrop.tip.seed": "Посадите на пашне или вспаханном эндерняке",
