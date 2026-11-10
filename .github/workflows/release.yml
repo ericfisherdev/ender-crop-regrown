@@ -133,7 +133,7 @@ jobs:
           name: jars
           path: jars
       - name: Publish NeoForge jar
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        uses: Kira-NT/mc-publish@c23376546a97f5ba7984e94445da359459b14419 # v3.3.2
         with:
           curseforge-id: 1486489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -146,6 +146,7 @@ jobs:
           changelog: ${{ steps.notes.outputs.body }}
           loaders: neoforge
           game-versions: ${{ needs.prepare.outputs.minecraft_version }}
+          environment: client | server
           # No `java` input: mc-publish v3.3 has no Java-version allowlist, so an
           # unrecognised value could be silently dropped. The mod needs Java 25
           # (it ships for MC 26.1.2 / NeoForge 26.1.2); that runtime requirement
